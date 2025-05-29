@@ -69,14 +69,14 @@
                             @Html.DisplayFor(modelItem => item.ProductoId)
                         </td>
                         <td class="text-center" width="1">
-                            <img src='@((item.ArchivoId == null) ? "https://via.placeholder.com/27x40" : $"{ViewBag.Url}/api/archivos/{item.ArchivoId}")'
-                                alt="@item.Titulo" class="img-fluid img-thumbnail" style="max-height: 40px;" >
+                            <img src='@((item.ArchivoId == null) ? "https://placehold.co/27x40/FFF/999?text=Artículo" : $"{ViewBag.Url}/api/archivos/{item.ArchivoId}")'
+                                alt="@item.Titulo" class="img-fluid img-thumbnail" style="max-height: 40px;">
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Titulo)<br />
-                            <span class="text-secondary-emphasis small d-none d-md-block"> @Html.DisplayFor(modelItem => 
-                                item.Descripcion)</span><br/>
-                            @foreach (var cat in item.Categorias!)
+                            <span class="text-secondary-emphasis small d-none d-md-block"> @Html.DisplayFor(modelItem =>
+                                                        item.Descripcion)</span><br />
+                    @foreach (var cat in item.Categorias!)
                             {
                                 <span class="badge rounded-pill text-bg-secondary">@cat.Nombre</span>
                             }
@@ -86,21 +86,21 @@
                         </td>
                         <td width="1">
                             <a class="text-decoration-none small text-uppercase" asp-action="Detalle"
-                               asp-route-id="@item.ProductoId">Detalle</a>
+                                asp-route-id="@item.ProductoId">Detalle</a>
                         </td>
                         @if (ViewBag.SoloAdmin == true)
                         {
                             <td width="1">
                                 <a class="text-decoration-none small text-uppercase" asp-action="Categorias"
-                                   asp-route-id="@item.ProductoId">Categorías</a>
+                                    asp-route-id="@item.ProductoId">Categorías</a>
                             </td>
                             <td width="1">
                                 <a class="text-decoration-none small text-uppercase" asp-action="Editar"
-                                   asp-route-id="@item.ProductoId">Editar</a>
+                                    asp-route-id="@item.ProductoId">Editar</a>
                             </td>
                             <td width="1">
                                 <a class="text-decoration-none small text-uppercase" asp-action="Eliminar"
-                                   asp-route-id="@item.ProductoId">Eliminar</a>
+                                    asp-route-id="@item.ProductoId">Eliminar</a>
                             </td>
                         }
                     </tr>
