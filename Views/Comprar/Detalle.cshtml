@@ -1,0 +1,82 @@
+@model Producto
+
+@{
+    ViewData["Title"] = Model.Titulo;
+    Layout = "_Layout";
+    var precio = Model.Precio;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-3">
+                <a asp-action="Index" class="btn btn-link text-dark text-decoration-none p-0">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+            <div class="card shadow border-0">
+                <div class="row g-0">
+                    <div class="col-md-5 text-center bg-white p-4">
+                        <img src='@((Model.ArchivoId == null) ? "https://placehold.co/300x300/FFF/999?text=Artículo" : $"{ViewBag.Url}/api/archivos/{Model.ArchivoId}")'
+                            alt="@Model.Titulo" class="img-fluid rounded" style="max-height: 300px;" />
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card-body">
+                            <h2 class="card-title mb-3 fw-bold ">@Model.Titulo</h2>
+                            <p class="card-text text-muted">@Model.Descripcion</p>
+                            <h3 class="text-success mb-3">$@Model.Precio.ToString("N2")</h3>
+                            <p class="mb-1"><span class="fw-semibold">Stock:</span> <span
+                                    class="badge bg-info text-dark">@Model.Stock</span></p>
+                            <hr />
+                            <form asp-action="AgregarAlCarrito" method="post" class="mb-3 d-flex align-items-end">
+                                <div class="me-2 flex-grow-1">
+                                    <label for="cantidad" class="form-label mb-1">Cantidad:</label>
+                                    <input type="number" id="cantidad" name="cantidad" value="1" min="1"
+                                        max="@Model.Stock" class="form-control" style="max-width: 100px;" />
+                                    <input type="hidden" name="productoid" value="@Model.ProductoId" />
+                                    <input type="hidden" name="precioUnitario"
+                                        value="@Model.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                                </div>
+                                <button type="submit" class="btn btn-outline-primary ms-2 mb-1">
+                                    <i class="bi bi-cart-plus"></i> Agregar al carrito
+                                </button>
+                            </form>
+                            <div class="mb-3">
+                                <span class="fw-semibold">Total:</span>
+                                <span id="totalCompra" class="fs-5 text-success">$@Model.Precio.ToString("N2")</span>
+                            </div>
+                            <form asp-action="ComprarAhora" method="post">
+                                <input type="hidden" name="productoId" value="@Model.ProductoId" />
+                                <input type="hidden" name="cantidad" id="cantidadComprar" value="1" />
+                                <input type="hidden" name="direccionEnvio" value="Calle Falsa 123, Ciudad" />
+                                <input type="hidden" name="metodoPago" value="Tarjeta de crédito" />
+                                <button type="submit" class="btn btn-success btn-lg w-100 py-2 fs-5">
+                                    <i class="bi bi-lightning-fill"></i> Comprar ahora
+                                </button>
+                            </form>
+                            <script>
+                                // Sincroniza el input de cantidad para ambos formularios y actualiza el total
+                                const cantidadInput = document.getElementById('cantidad');
+                                const cantidadComprar = document.getElementById('cantidadComprar');
+                                const totalCompra = document.getElementById('totalCompra');
+                                const precio = @Model.Precio;
+
+                                function actualizarTotal() {
+                                    let cantidad = parseInt(cantidadInput.value) || 1;
+                                    if (cantidad < 1) cantidad = 1;
+                                    if (cantidad > @Model.Stock) cantidad = @Model.Stock;
+                                    cantidadInput.value = cantidad;
+                                    cantidadComprar.value = cantidad;
+                                    totalCompra.textContent = "$" + (cantidad * precio).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                                }
+
+                                cantidadInput.addEventListener('input', actualizarTotal);
+                                actualizarTotal();
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

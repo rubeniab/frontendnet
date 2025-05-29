@@ -22,6 +22,9 @@ public class Producto
     [Display(Name = "Precio")]
     public decimal Precio { get; set; }
 
+    [Display(Name = "Stock")]
+    public int Stock { get; set; }
+
     [Display(Name = "Portada")]
     public int? ArchivoId { get; set; }
 

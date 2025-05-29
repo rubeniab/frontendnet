@@ -17,6 +17,13 @@ public class AuthClientService(HttpClient client, IHttpContextAccessor httpConte
         return token!;
     }
 
+    public async Task<bool> RegistrarUsuarioAsync(RegisterUser usuario)
+    {
+        var response = await client.PostAsJsonAsync("api/registro", usuario);
+        return response.IsSuccessStatusCode;
+    }
+
+
     public async void IniciaSesionAsync(List<Claim> claims)
     {
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

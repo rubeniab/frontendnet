@@ -4,9 +4,27 @@ namespace frontendnet.Models;
 
 public class Pedido
 {
-    [Display(Name = "Id")]
-    public int? PedidoId { get; set; }
+    public int? Id { get; set; }
 
-    [Required(ErrorMessage = "El campo {0} es obligatorio.")]
-    public required string UsuarioId { get; set; }
+    [Required]
+    public string UsuarioId { get; set; } = "";
+
+    [Required]
+    public DateTime Fecha { get; set; }
+
+    [Required]
+    public string Estado { get; set; } = "pendiente";
+
+    [Required]
+    public decimal Total { get; set; }
+
+    [Required]
+    public string DireccionEnvio { get; set; } = "";
+
+    [Required]
+    public string MetodoPago { get; set; } = "";
+
+    public bool EsCarrito { get; set; } = false;
+
+    public List<ItemPedido>? Items { get; set; }
 }
