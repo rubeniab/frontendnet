@@ -82,7 +82,7 @@ public class UsuariosController(UsuariosClientService usuarios, RolesClientServi
             if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 return RedirectToAction("Salir", "Auth");
         }
-        ViewBag.PudeEditar = !(User.Identity?.Name == email);
+        ViewBag.PuedeEditar = !(User.Identity?.Name == email);
         await RolesDropDownListAsync(itemToEdit?.Rol);
         return View(itemToEdit);
     }
@@ -107,7 +107,7 @@ public class UsuariosController(UsuariosClientService usuarios, RolesClientServi
         }
 
         ModelState.AddModelError("Nombre", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
-        ViewBag.PudeEditar = !(User.Identity?.Name == email);
+        ViewBag.PuedeEditar = !(User.Identity?.Name == email);
         await RolesDropDownListAsync(itemToEdit?.Rol);
         return View(itemToEdit);
     }
