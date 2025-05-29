@@ -1,3 +1,5 @@
+@model Pedido
+
 @{
     ViewData["Title"] = "Carrito de compras";
     ViewData["SubTitle"] = "Listado";
@@ -5,14 +7,42 @@
 
 <h2 class="text-center mb-3">@ViewData["Title"]<small class="text-muted fs-5">@ViewData["SubTitle"]</small></h2>
 
-<div class="row small mb-3">
-    <div class="col text-end">
-        Mostrando 0 elementos
-    </div>
-</div>
-
-<div class="mt-5">
-    <div class="alert alert-warning" role="alert">
-        No se han encontrado elementos. Inténtalo de nuevo más tarde.
-    </div>
-</div>
+@if (Model.Items != null && Model.Items.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.ProductoId</td>
+                    <td>@item.Cantidad</td>
+                    <td>@item.PrecioUnitario</td>
+                    <td>@item.Subtotal</td>
+                    <td>
+                        <form asp-action="EliminarDelCarrito" method="post">
+                            <input type="hidden" name="ItemId" value="@item.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p>Total: @Model.Total</p>
+    <form asp-action="ComprarCarrito" method="post">
+        <button type="submit" class="btn btn-success">Comprar todo</button>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning">El carrito está vacío.</div>
+}
