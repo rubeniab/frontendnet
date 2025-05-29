@@ -50,6 +50,27 @@ public class AuthController(AuthClientService auth) : Controller
         return View(model);
     }
 
+    [HttpGet]
+public IActionResult Registro()
+{
+    return View();
+}
+
+[HttpPost]
+public async Task<IActionResult> Registro(RegisterUser user)
+{
+    if (!ModelState.IsValid)
+        return View(user);
+
+    var success = await auth.RegistrarUsuarioAsync(user);
+    if (success)
+        return RedirectToAction("Index", "Home");
+
+    ModelState.AddModelError(string.Empty, "Error al registrar usuario");
+    return View(user);
+}
+
+
     [Authorize(Roles = "Administrador, Usuario")]
     public async Task<IActionResult> SalirAsync()
     {
