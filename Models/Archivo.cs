@@ -15,9 +15,6 @@ public class Archivo
     [Display(Name = "Tamprecio")]
     public int? Size { get; set; }
 
-    //[Display(Name = "Repositorio")] //Correcto
-    //public bool? InDb { get; set; }
-
-    [Display(Name = "Repositorio")]  //Como en practica
+    [Display(Name = "Repositorio")]
     public bool InDb { get; set; } = true;
 }
