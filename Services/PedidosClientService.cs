@@ -50,4 +50,18 @@ public class PedidosClientService(HttpClient client)
         };
         await client.PostAsJsonAsync($"api/usuarios/{email}/pedidos", data);
     }
+
+    // Obtener todos los pedidos 
+    public async Task<List<Pedido>?> ObtenerPedidosAsync()
+    {
+        return await client.GetFromJsonAsync<List<Pedido>>($"api/pedidos");
+    }
+
+    // Obtener pedidos del usuario
+    public async Task<List<Pedido>?> ObtenerPedidosPorUsuarioAsync(string email)
+    {
+        return await client.GetFromJsonAsync<List<Pedido>>($"api/usuarios/{email}/pedidos");
+    }
+
+    
 }
