@@ -5,7 +5,7 @@
     ViewData["SubTitle"] = "Listado";
 }
 
-<h2 class="text-center mb-3">@ViewData["Title"]<small class="text-muted fs-5">@ViewData["SubTitle"]</small></h2>
+<h2 class="text-center mb-3">@ViewData["Title"] <small class="text-muted fs-5"> @ViewData["SubTitle"]</small></h2>
 
 @if (Model.Items != null && Model.Items.Count > 0)
 {
@@ -13,6 +13,7 @@
         <thead>
             <tr>
                 <th>Producto</th>
+                <th>Imagen</th>
                 <th>Cantidad</th>
                 <th>Precio Unitario</th>
                 <th>Subtotal</th>
@@ -21,23 +22,40 @@
         </thead>
         <tbody>
             @foreach (var item in Model.Items)
+{
+    <tr>
+        <td>@item.Titulo</td>
+        <td>
+            @if (item.ArchivoId != null)
             {
-                <tr>
-                    <td>@item.ProductoId</td>
-                    <td>@item.Cantidad</td>
-                    <td>@item.PrecioUnitario</td>
-                    <td>@item.Subtotal</td>
-                    <td>
-                        <form asp-action="EliminarDelCarrito" method="post">
-                            <input type="hidden" name="ItemId" value="@item.Id" />
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
+                <img src="@($"{ViewBag.Url}/api/archivos/{item.ArchivoId}")" alt="Imagen"
+                    style="max-width:60px;" />
             }
+            else
+            {
+                <span class="text-muted">Sin imagen</span>
+            }
+        </td>
+        <td>
+            <form asp-action="ModificarCantidad" method="post" class="d-inline">
+                <input type="hidden" name="ItemId" value="@item.Id" />
+                <input type="number" name="Cantidad" value="@item.Cantidad" min="1" style="width:60px;" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Actualizar</button>
+            </form>
+        </td>
+        <td>@item.PrecioUnitario.ToString("C")</td>
+        <td>@item.Subtotal.ToString("C")</td>
+        <td>
+            <form asp-action="EliminarDelCarrito" method="post">
+                <input type="hidden" name="ItemId" value="@item.Id" />
+                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+}
         </tbody>
     </table>
-    <p>Total: @Model.Total</p>
+    <p class="fs-4 text-end">Total: <span class="fw-bold">@Model.Total.ToString("C")</span></p>
     <form asp-action="ComprarCarrito" method="post">
         <button type="submit" class="btn btn-success">Comprar todo</button>
     </form>

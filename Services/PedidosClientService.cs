@@ -15,9 +15,9 @@ public class PedidosClientService(HttpClient client)
     }
 
     // Agregar un producto al carrito
-    public async Task AgregarAlCarritoAsync(string email, int productoId, int cantidad)
+    public async Task AgregarAlCarritoAsync(string email, int productoId, int cantidad, decimal precioUnitario)
     {
-        var data = new { productoid = productoId, cantidad };
+        var data = new { productoid = productoId, cantidad, precioUnitario };
         await client.PostAsJsonAsync($"api/usuarios/{email}/carrito/items", data);
     }
 
@@ -31,6 +31,12 @@ public class PedidosClientService(HttpClient client)
     public async Task ConfirmarCarritoAsync(string email)
     {
         await client.PostAsync($"api/usuarios/{email}/carrito/confirmar", null);
+    }
+
+    public async Task ModificarCantidadCarritoAsync(string email, int itemId, int cantidad)
+    {
+        var data = new { cantidad };
+        await client.PutAsJsonAsync($"api/usuarios/{email}/carrito/items/{itemId}", data);
     }
 
     // Compra directa (sin carrito)

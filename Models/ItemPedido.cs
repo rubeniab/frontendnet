@@ -20,4 +20,10 @@ public class ItemPedido
 
     [Required]
     public decimal Subtotal { get; set; }
+
+    public String? Titulo { get; set; }
+
+    public String? Descripcion { get; set; }
+
+    public int? ArchivoId { get; set; }
 }

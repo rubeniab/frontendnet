@@ -32,10 +32,18 @@ public class ComprarController(ProductosClientService productos, PedidosClientSe
     }
 
     [HttpPost]
-    public async Task<IActionResult> AgregarAlCarrito(int productoId, int cantidad)
+    public async Task<IActionResult> AgregarAlCarrito(int productoid, int cantidad, decimal precioUnitario)
     {
-        var email = User.Identity?.Name!;
-        await pedidos.AgregarAlCarritoAsync(email, productoId, cantidad);
-        return RedirectToAction("Index", "Carrito");
+        try
+        {
+            var email = User.Identity?.Name!;
+            // Si tienes productos.GetAsync, úsalo solo si lo necesitas
+            await pedidos.AgregarAlCarritoAsync(email, productoid, cantidad, precioUnitario);
+            return RedirectToAction("Index", "Carrito");
+        }
+        catch (Exception ex)
+        {
+            return Content("ERROR: " + ex.Message + "<br/>" + ex.StackTrace, "text/html");
+        }
     }
 }

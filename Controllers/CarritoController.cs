@@ -7,47 +7,33 @@ using Microsoft.AspNetCore.Mvc;
 namespace frontendnet;
 
 [Authorize(Roles = "Usuario")]
-public class CarritoController(PedidosClientService pedidos) : Controller
+public class CarritoController(PedidosClientService pedidos, ProductosClientService productos) : Controller
 {
+    private readonly ProductosClientService productos = productos;
+    // Muestra el carrito actual del usuario
     // Muestra el carrito actual del usuario
     public async Task<IActionResult> Index()
     {
         var email = User.Identity?.Name!;
-        Pedido? carrito = null;
+        List<ItemPedido>? items = null;
         try
         {
-            carrito = await pedidos.ObtenerCarritoAsync(email);
-            if (carrito != null && (carrito.Items == null || carrito.Items.Count == 0))
-            {
-                carrito.Items = await pedidos.ObtenerItemsCarritoAsync(email) ?? [];
-            }
+            items = await pedidos.ObtenerItemsCarritoAsync(email);
         }
         catch (HttpRequestException ex)
         {
-            // Puedes loguear el error aquí si quieres
             if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 return RedirectToAction("Salir", "Auth");
-            // Si hay otro error, muestra una vista vacía
             return View(new Pedido { Items = new List<ItemPedido>() });
         }
         catch (Exception)
         {
-            // Cualquier otro error
             return View(new Pedido { Items = new List<ItemPedido>() });
         }
 
-        // Si usas imágenes, asigna ViewBag.Url
-        ViewBag.Url = "http://localhost:3000"; // O usa configuration["UrlWebAPI"] si tienes IConfiguration
-
-        return View(carrito ?? new Pedido { Items = new List<ItemPedido>() });
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> AgregarAlCarrito(int productoId, int cantidad)
-    {
-        var email = User.Identity?.Name!;
-        await pedidos.AgregarAlCarritoAsync(email, productoId, cantidad);
-        return RedirectToAction(nameof(Index));
+        ViewBag.Url = "http://localhost:3000";
+        var total = items?.Sum(i => i.Subtotal) ?? 0;
+        return View(new Pedido { Items = items ?? new List<ItemPedido>(), Total = total });
     }
 
     [HttpPost]
@@ -55,6 +41,14 @@ public class CarritoController(PedidosClientService pedidos) : Controller
     {
         var email = User.Identity?.Name!;
         await pedidos.EliminarDelCarritoAsync(email, itemId);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ModificarCantidad(int itemId, int cantidad)
+    {
+        var email = User.Identity?.Name!;
+        await pedidos.ModificarCantidadCarritoAsync(email, itemId, cantidad);
         return RedirectToAction(nameof(Index));
     }
 
