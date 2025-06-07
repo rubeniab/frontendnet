@@ -19,8 +19,8 @@ public class UsuariosController(UsuariosClientService usuarios, RolesClientServi
         }
         catch (HttpRequestException ex)
         {
-            if (ex.StatusCode ==System.Net.HttpStatusCode.Unauthorized)
-            return RedirectToAction("Salir", "Auth");
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                return RedirectToAction("Salir", "Auth");
         }
         return View(lista);
     }
@@ -68,47 +68,76 @@ public class UsuariosController(UsuariosClientService usuarios, RolesClientServi
         return View(itemToCreate);
     }
 
-    [HttpGet("[controller]/[action]/{email}")]
+    [HttpGet("[controller]/[action]/{email?}")]
     public async Task<IActionResult> EditarAsync(string email)
     {
         Usuario? itemToEdit = null;
         try
         {
             itemToEdit = await usuarios.GetAsync(email);
-            if (itemToEdit == null) return NotFound();
+            ViewBag.PuedeEditar = (User.Identity?.Name == email);
+            return View(itemToEdit);
         }
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
                 return RedirectToAction("Salir", "Auth");
+            }
+            else if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                TempData["ErrorMessage"] = "No se ha encontrado un usuario asociado.";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Ha ocurrido un error inesperado en el servidor.";
+                return RedirectToAction("Index");
+            }
         }
-        ViewBag.PuedeEditar = !(User.Identity?.Name == email);
-        await RolesDropDownListAsync(itemToEdit?.Rol);
-        return View(itemToEdit);
     }
 
-    [HttpPost("[controller]/[action]/{email}")]
+
+    [HttpPost("[controller]/[action]/{email?}")]
     public async Task<IActionResult> EditarAsync(string email, Usuario itemToEdit)
     {
-        if (email != itemToEdit.Email) return NotFound();
-
         if (ModelState.IsValid)
         {
             try
             {
                 await usuarios.PutAsync(itemToEdit);
+                TempData["SuccessMessage"] = "Usuario modificado exitosamente";
                 return RedirectToAction(nameof(Index));
             }
             catch (HttpRequestException ex)
             {
                 if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
                     return RedirectToAction("Salir", "Auth");
+                }
+                else if (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                {
+                    TempData["ErrorMessage"] = "Correo invalido.";
+                    return View(itemToEdit);
+                }
+                else if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    TempData["ErrorMessage"] = "No se ha encontrado un usuario asociado.";
+                    return View(itemToEdit);
+                }
+                else if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    TempData["ErrorMessage"] = "El nombre del usuario es obligatorio y debe ser una cadena con al menos un carácter.";
+                    return View(itemToEdit);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Ha ocurrido un error inesperado en el servidor.";
+                    return View(itemToEdit);
+                }
             }
         }
-
-        ModelState.AddModelError("Nombre", "No ha sido posible realizar la acción. Inténtelo nuevamente.");
-        ViewBag.PuedeEditar = !(User.Identity?.Name == email);
-        await RolesDropDownListAsync(itemToEdit?.Rol);
+        TempData["ErrorMessage"] = "No ha sido posible realizar la acción. Inténtelo nuevamente.";
         return View(itemToEdit);
     }
     public async Task<IActionResult> Eliminar(string id, bool? showError = false)
