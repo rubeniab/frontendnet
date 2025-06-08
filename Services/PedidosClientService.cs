@@ -21,6 +21,21 @@ public class PedidosClientService(HttpClient client)
         await client.PostAsJsonAsync($"api/usuarios/{email}/carrito/items", data);
     }
 
+    // Comprar ahora (sin carrito)
+    public async Task ComprarAhoraAsync(string email, int productoId, int cantidad, string direccionEnvio, string metodoPago)
+    {
+        var producto = await client.GetFromJsonAsync<Producto>($"api/productos/{productoId}");
+        var precioUnitario = producto?.Precio ?? 0;
+
+        var data = new
+        {
+            item = new { productoid = productoId, cantidad, precioUnitario },
+            direccionEnvio,
+            metodoPago
+        };
+        await client.PostAsJsonAsync($"api/usuarios/{email}/pedidos", data);
+    }
+
     // Eliminar un item del carrito
     public async Task EliminarDelCarritoAsync(string email, int itemId)
     {
@@ -39,18 +54,6 @@ public class PedidosClientService(HttpClient client)
         await client.PutAsJsonAsync($"api/usuarios/{email}/carrito/items/{itemId}", data);
     }
 
-    // Compra directa (sin carrito)
-    public async Task ComprarAhoraAsync(string email, int productoId, int cantidad, string direccionEnvio, string metodoPago)
-    {
-        var data = new
-        {
-            items = new[] { new { productoid = productoId, cantidad } },
-            direccionEnvio,
-            metodoPago
-        };
-        await client.PostAsJsonAsync($"api/usuarios/{email}/pedidos", data);
-    }
-
     // Obtener todos los pedidos 
     public async Task<List<Pedido>?> ObtenerPedidosAsync()
     {
@@ -63,5 +66,5 @@ public class PedidosClientService(HttpClient client)
         return await client.GetFromJsonAsync<List<Pedido>>($"api/usuarios/{email}/pedidos");
     }
 
-    
+
 }

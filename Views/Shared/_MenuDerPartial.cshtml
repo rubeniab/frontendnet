@@ -5,6 +5,11 @@
     </div>
     @if (User.Identity?.IsAuthenticated == true)
     {
+        @if (User.IsInRole("Usuario"))
+        {
+            <a class="nav-link" asp-controller="Pedidos" asp-action="Index"><i class="bi bi-box"></i> Mis pedidos</a>
+            <a class="nav-link" asp-controller="Carrito" asp-action="Index"><i class="bi bi-cart"></i> Carrito</a>
+        }
         <a class="nav-link" asp-controller="Perfil">Hola @(User.Identity.Name)!</a>
         <a class="nav-link" asp-controller="Auth" asp-action="Salir">Salir</a>
     }

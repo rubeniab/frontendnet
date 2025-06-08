@@ -1,27 +1,19 @@
-using frontendnet.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using frontendnet.Models;
 
-namespace frontendnet;
-
-public class PedidosController(PedidosClientService pedidos, IConfiguration configuration) : Controller
+[Authorize(Roles = "Administrador")]
+public class PedidosAdminController(PedidosClientService pedidos, IConfiguration configuration) : Controller
 {
     public async Task<IActionResult> Index(string? s)
     {
         List<Pedido>? lista = [];
-
-        var email = User.Identity?.Name;
-        if (string.IsNullOrEmpty(email))
-        {
-            return RedirectToAction("Salir", "Auth");
-        }
-
         try
         {
-            lista = await pedidos.ObtenerPedidosPorUsuarioAsync(email!);
+            lista = await pedidos.ObtenerPedidosAsync(); // <-- trae todos los pedidos
             if (lista == null)
                 lista = [];
 
-            // Si hay filtro
             if (!string.IsNullOrEmpty(s))
             {
                 lista = lista.Where(p => p.UsuarioId.Contains(s, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -35,7 +27,6 @@ public class PedidosController(PedidosClientService pedidos, IConfiguration conf
 
         ViewBag.Url = configuration["UrlWebAPI"];
         ViewBag.search = s;
-
         return View(lista);
     }
 }
