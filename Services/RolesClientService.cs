@@ -4,8 +4,9 @@ namespace frontendnet.Services;
 
 public class RolesClientService(HttpClient client)
 {
-    public async Task<List<Rol>?> GetAsync()
+    public async Task<List<Rol>> GetAsync()
     {
-        return await client.GetFromJsonAsync<List<Rol>>("api/roles");
+        var response = await client.GetFromJsonAsync<ApiResponse<Rol>>("api/roles");
+        return response?.Data ?? [];
     }
 }

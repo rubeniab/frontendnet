@@ -76,6 +76,8 @@ public class UsuariosController(UsuariosClientService usuarios, RolesClientServi
         {
             itemToEdit = await usuarios.GetAsync(email);
             ViewBag.PuedeEditar = (User.Identity?.Name == email);
+
+              await RolesDropDownListAsync(itemToEdit?.Rol);
             return View(itemToEdit);
         }
         catch (HttpRequestException ex)
@@ -98,48 +100,39 @@ public class UsuariosController(UsuariosClientService usuarios, RolesClientServi
     }
 
 
-    [HttpPost("[controller]/[action]/{email?}")]
-    public async Task<IActionResult> EditarAsync(string email, Usuario itemToEdit)
+[HttpPost("[controller]/[action]/{email?}")]
+public async Task<IActionResult> EditarAsync(Usuario itemToEdit)
+{
+    if (ModelState.IsValid)
     {
-        if (ModelState.IsValid)
+        try
         {
-            try
-            {
-                await usuarios.PutAsync(itemToEdit);
-                TempData["SuccessMessage"] = "Usuario modificado exitosamente";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (HttpRequestException ex)
-            {
-                if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                {
-                    return RedirectToAction("Salir", "Auth");
-                }
-                else if (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
-                {
-                    TempData["ErrorMessage"] = "Correo invalido.";
-                    return View(itemToEdit);
-                }
-                else if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    TempData["ErrorMessage"] = "No se ha encontrado un usuario asociado.";
-                    return View(itemToEdit);
-                }
-                else if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                {
-                    TempData["ErrorMessage"] = "El nombre del usuario es obligatorio y debe ser una cadena con al menos un carácter.";
-                    return View(itemToEdit);
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Ha ocurrido un error inesperado en el servidor.";
-                    return View(itemToEdit);
-                }
-            }
+            await usuarios.PutAsync(itemToEdit);
+            TempData["SuccessMessage"] = "Usuario modificado exitosamente";
+            return RedirectToAction(nameof(Index));
         }
-        TempData["ErrorMessage"] = "No ha sido posible realizar la acción. Inténtelo nuevamente.";
-        return View(itemToEdit);
+        catch (HttpRequestException ex)
+        {
+            await RolesDropDownListAsync(itemToEdit.Rol);
+            if (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    return RedirectToAction("Salir", "Auth");
+                else if (ex.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                    TempData["ErrorMessage"] = "Correo inválido.";
+                else if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    TempData["ErrorMessage"] = "No se ha encontrado un usuario asociado.";
+                else if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    TempData["ErrorMessage"] = "El nombre del usuario es obligatorio y debe ser una cadena con al menos un carácter.";
+                else
+                    TempData["ErrorMessage"] = "Ha ocurrido un error inesperado en el servidor.";
+
+            return View(itemToEdit);
+        }
     }
+
+    TempData["ErrorMessage"] = "No ha sido posible realizar la acción. Inténtelo nuevamente.";
+    return View(itemToEdit);
+}
+
     public async Task<IActionResult> Eliminar(string id, bool? showError = false)
     {
         Usuario? itemToDelete = null;
